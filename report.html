@@ -852,30 +852,43 @@
       }).format(n);
     }
 
+function parsePercentNumber(value) {
+  if (value == null || value === '') return 0;
+  if (typeof value === 'number') return value;
+
+  let str = String(value).trim();
+  if (!str || str === '-') return 0;
+
+  str = str.replace('%', '').trim();
+
+  const hasDot = str.indexOf('.') !== -1;
+  const hasComma = str.indexOf(',') !== -1;
+
+  if (hasDot && hasComma) {
+    // format ribuan + desimal, mis. 1.234,56
+    str = str.replace(/\./g, '').replace(',', '.');
+  } else if (hasComma) {
+    // format desimal indo, mis. 99,99
+    str = str.replace(',', '.');
+  } else {
+    // format desimal biasa, mis. 99.99
+    str = str;
+  }
+
+  const num = parseFloat(str);
+  return isNaN(num) ? 0 : num;
+}
+    
 function formatPercentValue(value) {
   if (value == null || value === '') return '-';
 
-  let num = 0;
-
-  if (typeof value === 'number') {
-    num = value;
-  } else {
-    const str = String(value).trim();
-    if (!str || str === '-') return '-';
-
-    if (str.includes('%')) {
-      num = parseMoney(str.replace('%', ''));
-    } else {
-      num = parseMoney(str);
-    }
-  }
+  const num = parsePercentNumber(value);
 
   return new Intl.NumberFormat('id-ID', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(num) + '%';
 }
-
     function formatPercentFixed2(value) {
       if (value == null || value === '') return '-';
 
